@@ -13,8 +13,8 @@
 
         </div>
         <div>
-            <div v-for="item in listoption" :key="item" >
-                <div class="headview-option" @click="click(item)">{{item}}</div>
+            <div v-for="item in listoption" :key="item.index" >
+                <div class="headview-option" @click="click(item.index)">{{item.text}}</div>
                 <div class="headview-line-thin"></div>
             </div>
         </div>
@@ -26,26 +26,43 @@
         name: "headview",
         data() {
             return{
+                rs:'123',
                 headurl:'http://222.186.36.75:8888/records/20191223/7.png',
                 listoption:[
-                    '每排图片个数',
-                    '每排月份个数',
-                    '文件每排个数',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
+                    {text:'每排图片个数',index:0},
+                    {text:'每排月份个数',index:1},
+                    {text:'每排文件个数',index:2}
                 ]
             }
         },
         methods:{
             click(e){
-                alert(e)
+                this.sendMsg(e)
+                // this.$mine.android(e)
+            },
+            //js调app
+            sendMsg(e){
+                this.$bridge.callHandler('android',e,(res)=>{
+                    this.rs = res
+                })
+            },
+
+            //app调js
+            getAPPDate(){
+                this.$bridge.registerHandler('js', (data, responseCallback) => {
+                    let a = JSON.parse(data)
+                    this.listoption = []
+                    for(let i=0;i<a.length;i++){
+                        this.listoption.push(a[i])
+                    }
+                    responseCallback(a.length)
+                })
             }
+        },
+        mounted(){
+            this.getAPPDate()
         }
+
     }
 </script>
 
